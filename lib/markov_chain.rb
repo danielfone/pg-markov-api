@@ -1,24 +1,25 @@
 require 'sequel'
-require 'logger'
 
+#
+# "Hmm.. maybe load your data up into a solution."
+#
 class MarkovChain
 
-  SCHEMA_QUERY = File.read('sql/schema.sql')
-  INSERT_QUERY = File.read('sql/insert_bigrams.sql')
-  SELECT_QUERY = File.read('sql/generate_markov2.sql')
+  SELECT_QUERY = File.read('sql/generate_markov.sql')
 
   DB = Sequel.connect(ENV.fetch('DATABASE_URL'))
 
   def self.setup
-    DB << SCHEMA_QUERY
+    Pathname.glob('sql/schema/**/*.sql') { |f| DB << f.read }
   end
 
   def self.add(corpus, text)
-    DB[INSERT_QUERY, corpus: corpus, input_text: text].insert
+    DB[:text_inputs].insert(corpus: corpus, text: text)
+    DB << 'refresh materialized view ngrams'
   end
 
   def self.clear(corpus)
-    DB[:ngrams].where(corpus: corpus).delete
+    DB[:text_inputs].where(corpus: corpus).delete
   end
 
   def self.generate(corpus)
