@@ -1,0 +1,14 @@
+openapi: 3.0.2
+
+info:
+  title: Pure Postgres Markov Chain Generator
+  version: 1.0.0
+  contact:
+    name: Daniel Fone
+    email: daniel@fone.net.nz
+
+tags:
+  - name: Corpus
+
+paths:
+  /corpus/{uuid}: { $ref: "paths/corpus.yml" }
